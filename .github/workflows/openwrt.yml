@@ -23,6 +23,10 @@ on:
   pull_request:
     branches: [ master ]
   workflow_dispatch:  # 同时支持自动+手动触发
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
 
 jobs:
   build:
@@ -78,8 +82,37 @@ jobs:
         run: |
           echo -e "$(nproc) thread build."
           make -j$(nproc) V=s
-      - name : Upload artifact
-        uses: actions/upload-artifact@master
+     # - name : Upload artifact
+     #   uses: actions/upload-artifact@master
+    #    with:
+     #     name: OpenWrt_firmware
+     #     path: bin/targets/
+
+      - name: Package artifacts
+        run: |
+          cd bin/targets
+          tar -czvf openwrt-firmware-$(date +%Y%m%d).tar.gz */openwrt-*
+          echo "FIRMWARE_PATH=bin/targets/openwrt-firmware-$(date +%Y%m%d).tar.gz" >> $GITHUB_ENV
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt_firmware
-          path: bin/targets/
+          name: openwrt-firmware
+          path: ${{ env.FIRMWARE_PATH }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: OpenWrt Build ${{ github.event.inputs.release_tag }}
+          body: | 
+            Auto-generated OpenWrt firmware build
+            - Build Date: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            - Commit: ${{ github.sha }}
+          files: ${{ env.FIRMWARE_PATH }}
