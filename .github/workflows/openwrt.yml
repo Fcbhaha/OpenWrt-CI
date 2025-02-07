@@ -84,7 +84,7 @@ jobs:
           name: OpenWrt_firmware
           path: bin/targets/
 
-        - name: Create GitHub Release
+      - name: Create GitHub Release
         id: create-release
         uses: actions/create-release@v1
         if: ${{ success() }}  # 仅在编译成功时执行
@@ -103,5 +103,7 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: bin/targets/**/*.bin
+          asset_name: openwrt-firmware-${{ github.run_id }}.bin
+          asset_content_type: application/octet-stream
           asset_name: openwrt-firmware-${{ github.run_id }}.bin
           asset_content_type: application/octet-stream
