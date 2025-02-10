@@ -99,20 +99,3 @@ jobs:
         with:
           name: openwrt-firmware
           path: ${{ env.FIRMWARE_PATH }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.inputs.release_tag }}
-          name: OpenWrt Build ${{ github.event.inputs.release_tag }}
-          body: | 
-            Auto-generated OpenWrt firmware build
-            - Build Date: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
-            - Commit: ${{ github.sha }}
-          files: ${{ env.FIRMWARE_PATH }}
