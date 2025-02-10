@@ -82,20 +82,10 @@ jobs:
         run: |
           echo -e "$(nproc) thread build."
           make -j$(nproc) V=s
-     # - name : Upload artifact
-     #   uses: actions/upload-artifact@master
-    #    with:
-     #     name: OpenWrt_firmware
-     #     path: bin/targets/
-
-      - name: Package artifacts
-        run: |
-          cd bin/targets
-          tar -czvf openwrt-firmware-$(date +%Y%m%d).tar.gz */openwrt-*
-          echo "FIRMWARE_PATH=bin/targets/openwrt-firmware-$(date +%Y%m%d).tar.gz" >> $GITHUB_ENV
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name : Upload artifact
+        uses: actions/upload-artifact@master
         with:
-          name: openwrt-firmware
-          path: ${{ env.FIRMWARE_PATH }}
+          name: OpenWrt_firmware
+          path: bin/targets/
+
+
